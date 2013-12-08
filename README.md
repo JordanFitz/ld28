@@ -1,4 +1,3 @@
-ld28
+Jordanfitz's Ludum Dare #28 Submission
 ====
-
-Ludum Dare #28 Game
+My game for Ludum Dare #28.
