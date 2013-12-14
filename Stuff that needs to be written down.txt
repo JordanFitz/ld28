@@ -1,0 +1,6 @@
+THEME :: You Only Get One
+
+IDEA :: You only get one heart, and it's split into quarters
+		When you lose your heart, you go back to the last checkpoint
+        Possibly one enemy per room, like a boss fight, except on every level
+        Each enemy gets harder and harder to beat as you go on

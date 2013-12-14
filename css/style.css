@@ -1,0 +1,15 @@
+@font-face{
+	font-family: "Minecraftia";
+	src: url("Minecraftia.ttf");
+}
+
+body {
+	background-color: #1c1c1c;
+	text-align: center;
+	padding-top: 50px;
+}
+canvas{
+	display: inline-block;
+	border: 32px solid #000;
+	border-radius: 10px;
+}
