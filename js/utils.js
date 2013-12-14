@@ -9,3 +9,7 @@ var loadImage = function(src){
 	img.src = src;
 	return img;
 }
+
+var tilePosition = function(ind){
+	return ind*64;
+}

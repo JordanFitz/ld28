@@ -1,16 +1,47 @@
 var game = {},
-	resources = {};
+	resources = {},
+	player = {};
 
 resources.images = {};
 game.requestId = 0;
 game.canvas = $("canvas#canvas")[0];
 game.ctx = game.canvas.getContext("2d");
-game.keys = [];
+game.keys = [],
+player.position = {};
 
 $(document).ready(function(){
 
 	game.update = function(){
-		
+		if(game.keys[keys.up]){
+			player.position.y -= 4;
+		}
+		if(game.keys[keys.left]){
+			player.position.x -= 4;
+			player.facing = "left";
+		} 
+		if(game.keys[keys.down]){
+			player.position.y += 4;
+		} 
+		if(game.keys[keys.right]){
+			player.position.x += 4;
+			player.facing = "right";
+		}
+		if(game.keys[keys.x]){
+			player.state = "attack";
+		}
+
+		if(player.state == "attack"){
+			if(player.facing == "right"){
+				resources.images["player"] = resources.images['player_attack_right'];
+			} else {
+				resources.images["player"] = resources.images['player_attack_left'];
+			}
+		} else if(player.state == "idle"){
+			if(player.facing == "right")
+				resources.images["player"] = resources.images['player_idle_right'];
+			else
+				resources.images["player"] = resources.images['player_idle_left'];
+		}
 	}
 
 	game.draw = function(){
@@ -45,6 +76,13 @@ $(document).ready(function(){
 			//doors
 			game.ctx.drawImage(resources.images["door_right"], 0, 320);
 			game.ctx.drawImage(resources.images["door_left"], 576, 320);
+
+
+			//player
+			if(player.facing == "left" && player.state == "attack")
+				game.ctx.drawImage(resources.images["player"], player.position.x - 35, player.position.y);
+			else
+				game.ctx.drawImage(resources.images["player"], player.position.x, player.position.y);
 		}
 
 		if(game.currentRoom["normal_hud"]){
@@ -81,14 +119,30 @@ $(document).ready(function(){
 		game.deaths = 0;
 		game.currentRoom = views["room1"];
 
+		player.position.x = tilePosition(2);
+		player.position.y = tilePosition(5);
+		player.state = "idle";
+		player.facing = "right";
+
 		window.addEventListener("keydown", function(e){
-			
+			if(e.keyCode == keys.up){
+				game.keys[e.keyCode] = true;
+			} else if(e.keyCode == keys.left){
+				game.keys[e.keyCode] = true;
+			} else if(e.keyCode == keys.down){
+				game.keys[e.keyCode] = true;
+			} else if(e.keyCode == keys.right){
+				game.keys[e.keyCode] = true;
+			} else if(e.keyCode == keys.x){ 
+				game.keys[e.keyCode] = true;
+			}
 		});
 
 		window.addEventListener("keyup", function(e){
-			if(e.keyCode == 88){
-				keys[e.keyCode] = true;
+			if(e.keyCode == keys.x){
+				player.state = "idle";
 			}
+			game.keys[e.keyCode] = false;		
 		});
 	}
 
@@ -112,6 +166,13 @@ $(document).ready(function(){
 
 	resources.images['door_right'] = loadImage("img/door_right.png");
 	resources.images['door_left'] = loadImage("img/door_left.png");
+
+	//player
+	resources.images['player_idle_right'] = loadImage("img/player_idle_right.png");
+	resources.images['player_idle_left'] = loadImage("img/player_idle_left.png");
+	resources.images['player_attack_right'] = loadImage("img/player_attack_right.png");
+	resources.images['player_attack_left'] = loadImage("img/player_attack_left.png");
+	resources.images['player'] = resources.images['player_idle_right'];
 }
 
 var getRotation = function(key){
