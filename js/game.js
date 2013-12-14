@@ -12,6 +12,18 @@ player.position = {};
 $(document).ready(function(){
 
 	game.update = function(){
+		if(game.fading){
+			game.fadeOpacity -= 0.03;
+			game.fadeColor = game.fadeColor.substring(0, game.fadeColor.lastIndexOf(", ")) + ", " + game.fadeOpacity + ")";
+			if(game.fadeOpacity <= 0) game.fading = false;
+		}
+
+		if(game.flashing){
+			game.flashingOpacity -= 0.005;
+			game.flashingColor = game.flashingColor.substring(0, game.flashingColor.lastIndexOf(", ")) + ", " + game.flashingOpacity + ")";
+			if(game.flashingOpacity <= 0) game.flashing = false;
+		}
+
 		if(game.keys[keys.up]){
 			player.position.y -= 4;
 		}
@@ -28,6 +40,18 @@ $(document).ready(function(){
 		}
 		if(game.keys[keys.x]){
 			player.state = "attack";
+		}
+
+		if(player.position.x <= 64){
+			player.position.x = 64;
+		} else if(player.position.x + resources.images["player_idle_right"].width >= 576){
+			player.position.x = 576 - resources.images["player_idle_right"].width;
+		}
+
+		if(player.position.y <= 128){
+			player.position.y = 128;
+		} else if(player.position.y + resources.images["player_idle_right"].height >= 576){
+			player.position.y = 576 - resources.images["player_idle_right"].height;
 		}
 
 		if(player.state == "attack"){
@@ -77,7 +101,6 @@ $(document).ready(function(){
 			game.ctx.drawImage(resources.images["door_right"], 0, 320);
 			game.ctx.drawImage(resources.images["door_left"], 576, 320);
 
-
 			//player
 			if(player.facing == "left" && player.state == "attack")
 				game.ctx.drawImage(resources.images["player"], player.position.x - 35, player.position.y);
@@ -103,6 +126,19 @@ $(document).ready(function(){
 
 			//heart
 			game.ctx.drawImage(resources.images["current_heart"], game.canvas.width / 2 - 64, 0);
+		}
+
+		//flashing text
+		if(game.flashing){
+			game.ctx.fillStyle = game.flashingColor;
+			game.ctx.textAlign = "center";
+			game.ctx.fillText(game.flashingText, game.canvas.width / 2, 352);
+		}
+
+		//overlay
+		if(game.fading){
+			game.ctx.fillStyle = game.fadeColor;
+			game.ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
 		}
 
 		//requestAnimationFrame
@@ -190,4 +226,17 @@ var getRotation = function(key){
 			return 270;
 		break;
 	}
+}
+
+var fade = function(r, g, b, opacity){
+	game.fading = true;
+	game.fadeColor = "rgba(" + r + ", " + g + ", " + b + ", " + opacity + ")";
+	game.fadeOpacity = opacity;
+}
+
+var flashText = function(text, r, g, b, opacity){
+	game.flashing = true;
+	game.flashingText = text;
+	game.flashingColor = "rgba(" + r + ", " + g + ", " + b  + ", " + opacity + ")";
+	game.flashingOpacity = opacity;
 }
