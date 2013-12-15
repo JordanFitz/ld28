@@ -10,9 +10,16 @@ var loadImage = function(src){
 	return img;
 }
 
-var loadAudio = function(src){
+var loadAudio = function(src, loop){
 	var aud = new Audio();
 	aud.src = src;
+	aud.volume = 0.5;
+	if(loop){
+		aud.addEventListener("ended", function(){
+			aud.currentTime = 0;
+			aud.play();
+		})
+	}
 	return aud;
 }
 

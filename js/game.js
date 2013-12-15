@@ -18,7 +18,8 @@ $(document).ready(function(){
 		if(game.currentRoom["space_skip"]){
 			if(game.keys[keys.space]){
 				if(game.currentRoom["next_room"] == null){
-					flashText("This is the last room", 0, 0, 0, 1);	
+					game.currentRoom["special_text"] = true;
+					game.currentRoom["text"] = ["Congratulations! You beat the game :'("];
 				} else {
 					game.currentRoom = views[game.currentRoom["next_room"]];
 					player.state = "idle";
@@ -52,6 +53,8 @@ $(document).ready(function(){
 			if(game.keys[keys.c]){
 				if(game.currentRoom["previous_room"] == null){
 					flashText("This is the first room", 0, 0, 0, 1);	
+					//game.currentRoom["special_text"] = true;
+					//game.currentRoom["text"] = "Congratulations! You beat the game :'(";
 				} else {
 					game.currentRoom = views[game.currentRoom["previous_room"]];
 					fade(0, 0, 0, 1);				
@@ -91,7 +94,8 @@ $(document).ready(function(){
 				} else {
 					//go to next room
 					if(game.currentRoom["next_room"] == null){
-						flashText("This is the last room", 0, 0, 0, 1);	
+						game.currentRoom["special_text"] = true;
+						game.currentRoom["text"] = ["Congratulations! You beat the game :'("];
 					} else {
 						game.currentRoom = views[game.currentRoom["next_room"]];
 						fade(0, 0, 0, 1);				
@@ -265,14 +269,6 @@ $(document).ready(function(){
 			game.ctx.fillStyle = game.currentRoom["background"];
 		game.ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
 
-		if(game.currentRoom["special_text"]){
-			game.ctx.textAlign = "center";
-			game.ctx.fillStyle = "#fff";
-			for (var i = 0; i < game.currentRoom["text"].length; i++) {
-				game.ctx.fillText(game.currentRoom["text"][i], game.canvas.width / 2, 160 + i*32);
-			}
-		}
-
 		if(game.currentRoom["default_tiles"]){
 			//ground
 			for (var i = 0; i < 10; i++) {
@@ -342,6 +338,17 @@ $(document).ready(function(){
 			game.ctx.fillText(game.flashingText, game.canvas.width / 2, 352);
 		}
 
+		if(game.currentRoom["special_text"]){
+			game.ctx.textAlign = "center";
+			if(game.currentRoom["background"] == "#000")
+				game.ctx.fillStyle = "#fff";
+			else
+				game.ctx.fillStyle = "#000";
+			for (var i = 0; i < game.currentRoom["text"].length; i++) {
+				game.ctx.fillText(game.currentRoom["text"][i], game.canvas.width / 2, 160 + i*32);
+			}
+		}
+
 		//overlay
 		if(game.fading){
 			game.ctx.fillStyle = game.fadeColor;
@@ -355,7 +362,9 @@ $(document).ready(function(){
 	game.init = function(){
 		loadAllImages();
 
-		resources.audio["swordswing"] = loadAudio("audio/swordswing.wav");
+		resources.audio["swordswing"] = loadAudio("audio/swordswing.wav", false);
+		resources.audio["music"] = loadAudio("audio/music.wav", true);
+		resources.audio["hurt"] = loadAudio("audio/hurt.wav", false);
 
 		game.requestId = window.requestAnimationFrame(game.draw);
 		game.canvas.width = 640;
@@ -376,6 +385,7 @@ $(document).ready(function(){
 				player.alive = false;
 				game.deaths++;
 			}
+			resources.audio["hurt"].play();
 		}
 
 		player.respawn = function(){
@@ -484,6 +494,18 @@ $(document).ready(function(){
 				}, 250);
 			}
 			game.keys[e.keyCode] = false;		
+		});
+
+		resources.audio["music"].play();
+
+		$("div#mute").click(function(){
+			if(resources.audio["music"].paused){
+				resources.audio["music"].play();
+				$(this).html("Pause music");
+			} else {
+				resources.audio["music"].pause();
+				$(this).html("Play music");
+			}
 		});
 	}
 

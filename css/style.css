@@ -13,3 +13,10 @@ canvas{
 	border: 32px solid #000;
 	border-radius: 10px;
 }
+
+#mute{
+	font-family: "Minecraftia";
+	font-size: 15px;
+	color: #fff;
+	cursor: pointer;
+}
