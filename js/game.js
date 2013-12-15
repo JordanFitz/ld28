@@ -15,6 +15,37 @@ enemy.position = {};
 $(document).ready(function(){
 
 	game.update = function(){
+		if(game.currentRoom["space_skip"]){
+			if(game.keys[keys.space]){
+				if(game.currentRoom["next_room"] == null){
+					flashText("This is the last room", 0, 0, 0, 1);	
+				} else {
+					game.currentRoom = views[game.currentRoom["next_room"]];
+					player.state = "idle";
+					player.facing = "right";
+					if(game.currentRoom["default_start_position"]){
+						player.position.x = tilePosition(2);
+						player.position.y = tilePosition(5);
+					} else {
+						player.position.x = tilePosition(game.currentRoom["start_position"][0]);
+						player.position.y = tilePosition(game.currentRoom["start_position"][1]);
+					}
+						enemy.steps = 0;
+					if(game.currentRoom["enemy"]["default_start_position"]){
+						enemy.position.x = tilePosition(6);
+						enemy.position.y = tilePosition(4) + 32;
+					} else {
+						enemy.position.x = tilePosition(game.currentRoom["enemy"]["start_position"][0]);
+						enemy.position.y = tilePosition(game.currentRoom["enemy"]["start_position"][1]);
+					}
+					game.currentRoom["enemy"]["health"] = game.currentRoom["enemy"]["max_health"];
+					resources.images["enemy"] = loadImage(game.currentRoom["enemy"]["img"]);
+					fade(0, 0, 0, 1);
+				}
+			}
+		}
+
+
 		if(boundingBox(64, 320, 32, 64, player.position.x, player.position.y, resources.images["player_idle_right"].width, resources.images["player_idle_right"].height)){
 			//left door
 			flashText("Press C to go back", 0, 0, 0, 1);
@@ -42,6 +73,7 @@ $(document).ready(function(){
 							enemy.position.x = tilePosition(game.currentRoom["enemy"]["start_position"][0]);
 							enemy.position.y = tilePosition(game.currentRoom["enemy"]["start_position"][1]);
 						}
+						resources.images["enemy"] = loadImage(game.currentRoom["enemy"]["img"]);
 						game.currentRoom["enemy"]["health"] = game.currentRoom["enemy"]["max_health"];
 					}					
 				}
@@ -82,13 +114,14 @@ $(document).ready(function(){
 								enemy.position.y = tilePosition(game.currentRoom["enemy"]["start_position"][1]);
 							}
 							game.currentRoom["enemy"]["health"] = game.currentRoom["enemy"]["max_health"];
+							resources.images["enemy"] = loadImage(game.currentRoom["enemy"]["img"]);
 						}
 					}
 				}
 			}
 		}
 
-		if(boundingBox( player.position.x, player.position.y, resources.images["player"].width, resources.images["player"].height,
+		if(game.currentRoom["enemy"] != null && boundingBox( player.position.x, player.position.y, resources.images["player"].width, resources.images["player"].height,
 						enemy.position.x, enemy.position.y, resources.images["enemy"].width, resources.images["enemy"].height) &&
 						game.currentRoom["enemy"]["health"] > 0 && player.alive){
 			if(player.position.x >= enemy.position.x){
@@ -176,15 +209,15 @@ $(document).ready(function(){
 			player.position.y = 576 - resources.images["player_idle_right"].height;
 		}
 
-		if(enemy.position.x <= 64){
+		if(game.currentRoom["enemy"] != null && enemy.position.x <= 64){
 			enemy.position.x = 64;
-		} else if(enemy.position.x + resources.images["enemy"].width >= 576){
+		} else if(game.currentRoom["enemy"] != null && enemy.position.x + resources.images["enemy"].width >= 576){
 			enemy.position.x = 576 - resources.images["enemy"].width;
 		}
 
-		if(enemy.position.y <= 128){
+		if(game.currentRoom["enemy"] != null && enemy.position.y <= 128){
 			enemy.position.y = 128;
-		} else if(enemy.position.y + resources.images["enemy"].height >= 576){
+		} else if(game.currentRoom["enemy"] != null && enemy.position.y + resources.images["enemy"].height >= 576){
 			enemy.position.y = 576 - resources.images["enemy"].height;
 		}
 
@@ -206,7 +239,7 @@ $(document).ready(function(){
 			var units = {};
 			units.x = (player.position.x - enemy.position.x) / 100;
 			units.y = (player.position.y - enemy.position.y) / 100;
-			if(game.currentRoom["enemy"].health > 0){
+			if(game.currentRoom["enemy"] != null && game.currentRoom["enemy"].health > 0){
 				enemy.position.x += units.x;
 				enemy.position.y += units.y;
 			}
@@ -215,7 +248,7 @@ $(document).ready(function(){
 			enemy.steps = 0;
 		}
 
-		if(game.currentRoom["enemy"]["health"] <= 0){
+		if(game.currentRoom["enemy"] != null && game.currentRoom["enemy"]["health"] <= 0){
 			game.currentRoom["completed"] = true;
 		}
 	}
@@ -226,8 +259,19 @@ $(document).ready(function(){
 		//clear screen
 		game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
 		//paint screen white
-		game.ctx.fillStyle = "#fff";
+		if(game.currentRoom["background"] == null)
+			game.ctx.fillStyle = "#fff";
+		else
+			game.ctx.fillStyle = game.currentRoom["background"];
 		game.ctx.fillRect(0, 0, game.canvas.width, game.canvas.height);
+
+		if(game.currentRoom["special_text"]){
+			game.ctx.textAlign = "center";
+			game.ctx.fillStyle = "#fff";
+			for (var i = 0; i < game.currentRoom["text"].length; i++) {
+				game.ctx.fillText(game.currentRoom["text"][i], game.canvas.width / 2, 160 + i*32);
+			}
+		}
 
 		if(game.currentRoom["default_tiles"]){
 			//ground
@@ -319,7 +363,7 @@ $(document).ready(function(){
 		game.ctx.font = '17px "Minecraftia"';
 		game.score = 0;
 		game.deaths = 0;
-		game.currentRoom = views["room1"];
+		game.currentRoom = views["start"];
 
 		player.alive = true;
 		player.health = 4;
@@ -370,16 +414,20 @@ $(document).ready(function(){
 		player.state = "idle";
 		player.facing = "right";
 
-		resources.images["enemy1"] = loadImage(game.currentRoom["enemy"]["img"]);
-		resources.images["enemy"] = resources.images["enemy1"];
+		if(game.currentRoom["enemy"] != null){
+			resources.images["enemy1"] = loadImage(game.currentRoom["enemy"]["img"]);
+			resources.images["enemy"] = resources.images["enemy1"];
+		}
 
 		enemy.steps = 0;
-		if(game.currentRoom["enemy"]["default_start_position"]){
+		if(game.currentRoom["enemy"] != null && game.currentRoom["enemy"]["default_start_position"]){
 			enemy.position.x = tilePosition(6);
 			enemy.position.y = tilePosition(4) + 32;
 		} else {
-			enemy.position.x = tilePosition(game.currentRoom["enemy"]["start_position"][0]);
-			enemy.position.y = tilePosition(game.currentRoom["enemy"]["start_position"][1]);
+			if(game.currentRoom["enemy"] != null){
+				enemy.position.x = tilePosition(game.currentRoom["enemy"]["start_position"][0]);
+				enemy.position.y = tilePosition(game.currentRoom["enemy"]["start_position"][1]);
+			} 
 		}
 
 		enemy.damage = function(){
@@ -416,6 +464,9 @@ $(document).ready(function(){
 				game.keys[e.keyCode] = true;
 				e.preventDefault();
 			} else if(e.keyCode == keys.v){
+				game.keys[e.keyCode] = true;
+				e.preventDefault();
+			} else if(e.keyCode == keys.space){
 				game.keys[e.keyCode] = true;
 				e.preventDefault();
 			}
