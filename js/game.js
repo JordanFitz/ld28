@@ -19,7 +19,7 @@ $(document).ready(function(){
 			if(game.keys[keys.space]){
 				if(game.currentRoom["next_room"] == null){
 					game.currentRoom["special_text"] = true;
-					game.currentRoom["text"] = ["Congratulations! You beat the game :'("];
+					game.currentRoom["text"] = ["How the heck did you beat that last enemy? (the end)"];
 				} else {
 					game.currentRoom = views[game.currentRoom["next_room"]];
 					player.state = "idle";
@@ -54,7 +54,7 @@ $(document).ready(function(){
 				if(game.currentRoom["previous_room"] == null){
 					flashText("This is the first room", 0, 0, 0, 1);	
 					//game.currentRoom["special_text"] = true;
-					//game.currentRoom["text"] = "Congratulations! You beat the game :'(";
+					//game.currentRoom["text"] = "How the heck did you beat that last enemy? (the end)";
 				} else {
 					game.currentRoom = views[game.currentRoom["previous_room"]];
 					fade(0, 0, 0, 1);				
@@ -95,7 +95,7 @@ $(document).ready(function(){
 					//go to next room
 					if(game.currentRoom["next_room"] == null){
 						game.currentRoom["special_text"] = true;
-						game.currentRoom["text"] = ["Congratulations! You beat the game :'("];
+						game.currentRoom["text"] = ["How the heck did you beat that last enemy? (the end)"];
 					} else {
 						game.currentRoom = views[game.currentRoom["next_room"]];
 						fade(0, 0, 0, 1);				

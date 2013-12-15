@@ -15,6 +15,8 @@ var views = {
 				 "Press C to go through doors",
 				 "And press V to respawn.",
 				 "",
+				 "You only get one heart D:",
+				 "",
 				 "Press space to start"],
 		"background": "#000",
 		"space_skip": true
@@ -67,8 +69,25 @@ var views = {
 		"completed": false,
 		"default_start_position": true,
 		"previous_room": "room2",
-		"next_room": null,
+		"next_room": "room4",
 		"regen_on_complete": true,
 		"reward": 9
+	},
+	"room4": {
+		"normal_hud": true,
+		"default_tiles": true,
+		"enemy": {
+			"health": 50,
+			"max_health": 50,
+			"img": "img/enemy4.png",
+			"default_start_position": true,
+			"damage": 1
+		},
+		"completed": false,
+		"default_start_position": true,
+		"previous_room": "room2",
+		"next_room": null,
+		"regen_on_complete": true,
+		"reward": 50
 	}
 };
